@@ -131,15 +131,6 @@ const schemaStatements = [
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
   )`,
-  `CREATE TABLE IF NOT EXISTS support_messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    sender_type TEXT NOT NULL CHECK(sender_type IN ('user', 'admin')),
-    sender_name TEXT NOT NULL,
-    message TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  )`,
 ];
 
 async function initSchema() {
