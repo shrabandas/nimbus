@@ -2,7 +2,7 @@ async function renderPlans(container, navigate) {
   container.innerHTML = Layout('plans', `
     <div class="page-header">
       <h1 class="page-title">Plans</h1>
-      <p class="page-sub">Buy a tier from your wallet balance. Tiers unlock access and support level — not a promised return.</p>
+      <p class="page-sub">Buy a plan and earn GURRENTED RETURN lifetime</p>
     </div>
     <div id="plans-content">
       <div class="loading-spin"></div>
