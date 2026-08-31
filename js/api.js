@@ -1,4 +1,4 @@
-const API_BASE = 'https://dashboard-backend-hf2g.onrender.com/';
+const API_BASE = 'https://dashboard-backend-hf2g.onrender.com';
 
 const Api = {
   token: null,
