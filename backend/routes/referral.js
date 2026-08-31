@@ -10,69 +10,6 @@ function getAvailableBonusPoints({ earned = 0, redeemed = 0 }) {
   return Math.max(0, Number(earned || 0) - Number(redeemed || 0));
 }
 
-async function addSupportMessage({ userId, senderType, senderName, message }) {
-  const trimmedMessage = String(message || '').trim();
-  const normalizedType = String(senderType || '').toLowerCase();
-
-  if (!Number.isFinite(Number(userId))) {
-    throw new Error('User not found');
-  }
-  if (!['user', 'admin'].includes(normalizedType)) {
-    throw new Error('Invalid sender type');
-  }
-  if (!trimmedMessage) {
-    throw new Error('Message is required');
-  }
-
-  const user = await db.prepare('SELECT id FROM users WHERE id = ?').get(Number(userId));
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const result = await db.prepare(`
-    INSERT INTO support_messages (user_id, sender_type, sender_name, message)
-    VALUES (?, ?, ?, ?)
-  `).run(Number(userId), normalizedType, String(senderName || (normalizedType === 'user' ? 'User' : 'Admin')).trim() || (normalizedType === 'user' ? 'User' : 'Admin'), trimmedMessage);
-
-  return db.prepare('SELECT * FROM support_messages WHERE id = ?').get(result.lastInsertRowid);
-}
-
-async function getSupportThreadForUser(userId) {
-  return db.prepare(`
-    SELECT *
-    FROM support_messages
-    WHERE user_id = ?
-    ORDER BY created_at ASC, id ASC
-  `).all(Number(userId));
-}
-
-async function getSupportThreadsForAdmin() {
-  const rows = await db.prepare(`
-    SELECT sm.*, u.name AS user_name, u.email AS user_email
-    FROM support_messages sm
-    JOIN users u ON u.id = sm.user_id
-    WHERE sm.id IN (
-      SELECT MAX(id) FROM support_messages GROUP BY user_id
-    )
-    ORDER BY sm.created_at DESC
-  `).all();
-
-  const threads = [];
-  for (const row of rows) {
-    const messages = await getSupportThreadForUser(row.user_id);
-    threads.push({
-      user_id: row.user_id,
-      user_name: row.user_name,
-      user_email: row.user_email,
-      latest_message: row.message,
-      latest_sender_type: row.sender_type,
-      latest_created_at: row.created_at,
-      messages,
-    });
-  }
-  return threads;
-}
-
 function register(router) {
   // GET /api/referral/overview
   router.get('/api/referral/overview', requireAuth, async (req, res) => {
@@ -115,45 +52,6 @@ function register(router) {
       bonus_history: bonuses,
     });
   });
-
-  router.get('/api/referral/support', requireAuth, async (req, res) => {
-    const messages = await getSupportThreadForUser(req.user.id);
-    res.json({ messages });
-  });
-
-  router.post('/api/referral/support', requireAuth, async (req, res) => {
-    try {
-      const support = await addSupportMessage({
-        userId: req.user.id,
-        senderType: 'user',
-        senderName: req.user.email,
-        message: req.body.message,
-      });
-      res.json({ message: 'Support message sent', support }, 201);
-    } catch (err) {
-      res.json({ error: err.message || 'Failed to send support message' }, 400);
-    }
-  });
-
-  router.get('/api/admin/support', requireAuth, requireAdmin, async (req, res) => {
-    const threads = await getSupportThreadsForAdmin();
-    res.json({ threads });
-  });
-
-  router.post('/api/admin/support/:userId/reply', requireAuth, requireAdmin, async (req, res) => {
-    try {
-      const userId = Number(req.params.userId);
-      const support = await addSupportMessage({
-        userId,
-        senderType: 'admin',
-        senderName: req.user.email,
-        message: req.body.message,
-      });
-      res.json({ message: 'Reply sent', support }, 201);
-    } catch (err) {
-      res.json({ error: err.message || 'Failed to send reply' }, 400);
-    }
-  });
 }
 
-module.exports = { register, calculateReferralBonusPoints, getAvailableBonusPoints, addSupportMessage, getSupportThreadForUser, getSupportThreadsForAdmin };
+module.exports = { register, calculateReferralBonusPoints, getAvailableBonusPoints };
