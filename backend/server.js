@@ -65,7 +65,7 @@ dbInit.ready
   .then(() => {
     server.listen(PORT, () => {
       console.log(`Backend running on http://localhost:${PORT}`);
-      console.log('DEMO PROJECT: all balances and deposits are simulated, no real funds involved.');
+      console.log('Deposit crypto and earn fund online.');
     });
   })
   .catch((err) => {
