@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:4000/api';
+const API_BASE = 'https://dashboard-backend-hf2g.onrender.com/';
 
 const Api = {
   token: null,
