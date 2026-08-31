@@ -774,6 +774,8 @@ tbody tr:hover { background: rgba(255,255,255,0.015); }
   .main {
     height: auto;
     overflow: visible;
+    padding: 22px 18px 54px;
+    max-width: 100%;
   }
 
   .sidebar {
@@ -969,11 +971,6 @@ tbody tr:hover { background: rgba(255,255,255,0.015); }
     margin-top: 10px;
   }
 
-  .main {
-    padding: 22px 18px 54px;
-    max-width: 100%;
-  }
-
   .grid-2,
   .grid-3,
   .admin-stats-grid {
@@ -982,6 +979,13 @@ tbody tr:hover { background: rgba(255,255,255,0.015); }
 
   .hero-card {
     padding: 22px 18px;
+  }
+
+  .hero-card::before {
+    width: 200px;
+    height: 200px;
+    top: -40%;
+    right: -5%;
   }
 
   .hero-value {
@@ -998,18 +1002,8 @@ tbody tr:hover { background: rgba(255,255,255,0.015); }
     font-size: 12.5px;
   }
 
-  .field {
-    margin-bottom: 14px;
-  }
-
-  .field input,
-  .field select {
-    padding: 11px 12px;
-    font-size: 15px;
-  }
-
-  .tx-input-row {
-    flex-direction: column;
+  .page-title {
+    font-size: 22px;
   }
 
   .earnings-form {
@@ -1017,67 +1011,172 @@ tbody tr:hover { background: rgba(255,255,255,0.015); }
   }
 }
 
-@media (max-width: 640px) {
-  .auth-shell {
-    padding: 16px;
-  }
-
-  .auth-card {
-    padding: 24px 18px;
-  }
-
-  .page-header {
-    margin-bottom: 20px;
+/* Extra small screens - iPhone 15 (390-393px viewport) */
+@media (max-width: 430px) {
+  .main {
+    padding: 16px 12px 40px;
   }
 
   .page-title {
-    font-size: 24px;
+    font-size: 18px;
   }
 
   .page-sub {
     font-size: 13px;
   }
 
-  .card,
-  .stat-card,
-  .plan-card,
+  .auth-card {
+    padding: 24px 18px;
+    max-width: 100%;
+  }
+
+  .auth-title {
+    font-size: 18px;
+  }
+
+  .field input,
+  .field select {
+    font-size: 16px;
+    padding: 12px 10px;
+  }
+
+  .btn {
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+
   .hero-card {
-    padding-left: 16px;
-    padding-right: 16px;
+    padding: 16px 14px;
+    margin-bottom: 16px;
+  }
+
+  .hero-card::before {
+    width: 150px;
+    height: 150px;
+    top: -30%;
+    right: -20%;
+  }
+
+  .hero-value {
+    font-size: 24px;
+  }
+
+  .hero-label {
+    font-size: 11px;
+  }
+
+  .hero-meta {
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .hero-meta-item .value {
+    font-size: 13px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    margin: 20px 0 12px;
   }
 
   .address-box {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .address-box .addr {
+    font-size: 12px;
   }
 
   .copy-btn {
     width: 100%;
+    padding: 8px;
+    font-size: 11px;
   }
 
-  .btn,
-  .logout-btn {
-    min-height: 42px;
+  thead th {
+    font-size: 10px;
+    padding: 0 8px 8px;
   }
 
-  .btn-primary {
-    width: 100%;
-  }
-
-  .user-chip {
-    padding: 8px 6px;
-  }
-
-  .user-name {
+  tbody td {
+    padding: 10px 8px;
     font-size: 12px;
   }
 
-  .user-email {
+  .plan-card {
+    padding: 16px;
+  }
+
+  .plan-name {
+    font-size: 16px;
+  }
+
+  .plan-price {
+    font-size: 24px;
+  }
+
+  .plan-features li {
+    font-size: 12px;
+  }
+
+  .alert {
+    padding: 8px 10px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .notice-box {
+    padding: 10px 12px;
+    font-size: 11.5px;
+    gap: 8px;
+  }
+
+  .topbar-mobile {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .mobile-user-avatar {
+    width: 32px;
+    height: 32px;
     font-size: 10px;
   }
 
-  table {
-    table-layout: auto;
-    min-width: 0;
+  .mobile-user-name {
+    font-size: 11px;
+  }
+
+  .mobile-menu-button {
+    width: 38px;
+    height: 38px;
+    gap: 4px;
+  }
+
+  .mobile-menu-button span {
+    width: 16px;
+    height: 1.5px;
+  }
+
+  .mobile-menu-panel {
+    width: min(90vw, 280px);
   }
 }
