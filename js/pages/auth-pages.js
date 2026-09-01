@@ -45,14 +45,76 @@ function renderLogin(container, navigate) {
     try {
       const email = container.querySelector('#email').value.trim();
       const password = container.querySelector('#password').value;
-      const { token, user } = await Api.login({ email, password });
+      const result = await Api.login({ email, password });
+
+      if (result.otp_required) {
+        renderOtpStep(container, navigate, result.user_id);
+        return;
+      }
+      Api.setToken(result.token);
+      State.setUser(result.user);
+      navigate('dashboard');
+    } catch (err) {
+      alertBox.innerHTML = Alert('error', err.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Log in';
+    }
+  });
+}
+
+function renderOtpStep(container, navigate, userId) {
+  container.innerHTML = `
+    <div class="auth-shell">
+      <div class="auth-card">
+        <div class="auth-brand">
+          <div class="brand-mark">N</div>
+          <div class="brand-name" style="font-family: var(--font-display); font-size:18px; font-weight:600;">Nimbus</div>
+        </div>
+        <h1 class="auth-title">Enter your code</h1>
+        <p class="auth-sub">We emailed a 6-digit code to your address.</p>
+        <div id="otp-alert"></div>
+        <form id="otp-form">
+          <div class="field">
+            <label for="otp">Verification code</label>
+            <input type="text" id="otp" required maxlength="6" inputmode="numeric" placeholder="123456" autocomplete="one-time-code" />
+          </div>
+          <button class="btn btn-primary" type="submit" id="otp-submit">Verify</button>
+        </form>
+        <p class="auth-switch"><a href="#" id="resend-otp">Resend code</a></p>
+      </div>
+    </div>
+  `;
+
+  const form = container.querySelector('#otp-form');
+  const alertBox = container.querySelector('#otp-alert');
+  const submitBtn = container.querySelector('#otp-submit');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    alertBox.innerHTML = '';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying…';
+    try {
+      const code = container.querySelector('#otp').value.trim();
+      const { token, user } = await Api.verifyOtp({ user_id: userId, code });
       Api.setToken(token);
       State.setUser(user);
       navigate('dashboard');
     } catch (err) {
       alertBox.innerHTML = Alert('error', err.message);
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Log in';
+      submitBtn.textContent = 'Verify';
+    }
+  });
+
+  container.querySelector('#resend-otp').addEventListener('click', async (e) => {
+    e.preventDefault();
+    alertBox.innerHTML = '';
+    try {
+      await Api.resendOtp({ user_id: userId });
+      alertBox.innerHTML = Alert('success', 'A new code has been sent.');
+    } catch (err) {
+      alertBox.innerHTML = Alert('error', err.message);
     }
   });
 }

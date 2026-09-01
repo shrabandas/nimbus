@@ -48,6 +48,8 @@ const Api = {
   // ---- Auth ----
   signup(payload) { return this.post('/auth/signup', payload); },
   login(payload) { return this.post('/auth/login', payload); },
+  verifyOtp(payload) { return this.post('/auth/verify-otp', payload); },
+  resendOtp(payload) { return this.post('/auth/resend-otp', payload); },
   me() { return this.get('/auth/me'); },
 
   // ---- Wallet ----
