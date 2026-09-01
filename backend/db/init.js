@@ -70,16 +70,6 @@ const schemaStatements = [
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (referred_by) REFERENCES users(id)
   )`,
-  `CREATE TABLE IF NOT EXISTS login_otps (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    code_hash TEXT NOT NULL,
-    expires_at TEXT NOT NULL,
-    attempts INTEGER NOT NULL DEFAULT 0,
-    consumed INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  )`,
   `CREATE TABLE IF NOT EXISTS deposits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,

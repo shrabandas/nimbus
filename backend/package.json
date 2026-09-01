@@ -10,7 +10,6 @@
     "node": ">=22.5.0"
   },
   "dependencies": {
-    "@libsql/client": "^0.17.4",
-    "nodemailer": "^6.9.14"
+    "@libsql/client": "^0.17.4"
   }
 }

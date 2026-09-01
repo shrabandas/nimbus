@@ -3,11 +3,6 @@ const { db, genDemoAddress } = require('../db/init');
 const jwt = require('../lib/jwt');
 const { hashPassword, verifyPassword } = require('../lib/password');
 const { requireAuth } = require('../middleware/auth');
-const otp = require('../lib/otp');
-const { sendOtpEmail } = require('../lib/mailer');
-
-const OTP_TTL_MS = 10 * 60 * 1000; // 10 minutes
-const MAX_ATTEMPTS = 5;
 
 function makeReferralCode() {
   return crypto.randomBytes(4).toString('hex').toUpperCase();
@@ -79,7 +74,7 @@ function register(router) {
     res.json({ token, user: await publicUser(user) }, 201);
   });
 
-  // POST /api/auth/login (step 1: password check + send OTP)
+  // POST /api/auth/login
   router.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -89,63 +84,8 @@ function register(router) {
     if (!user || !verifyPassword(password, user.password_hash)) {
       return res.json({ error: 'Invalid email or password' }, 401);
     }
-
-    const code = otp.generateCode();
-    const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString();
-    await db.prepare(
-      'INSERT INTO login_otps (user_id, code_hash, expires_at) VALUES (?, ?, ?)'
-    ).run(user.id, otp.hashCode(code), expiresAt);
-
-    await sendOtpEmail(user.email, code);
-
-    res.json({ otp_required: true, user_id: user.id });
-  });
-
-  // POST /api/auth/verify-otp (step 2: code check + issue token)
-  router.post('/api/auth/verify-otp', async (req, res) => {
-    const { user_id, code } = req.body;
-    if (!user_id || !code) {
-      return res.json({ error: 'user_id and code are required' }, 400);
-    }
-
-    const row = await db.prepare(
-      'SELECT * FROM login_otps WHERE user_id = ? AND consumed = 0 ORDER BY created_at DESC LIMIT 1'
-    ).get(user_id);
-
-    if (!row) return res.json({ error: 'No pending code. Please log in again.' }, 400);
-    if (new Date(row.expires_at) < new Date()) {
-      return res.json({ error: 'Code expired. Please log in again.' }, 400);
-    }
-    if (row.attempts >= MAX_ATTEMPTS) {
-      return res.json({ error: 'Too many attempts. Please log in again.' }, 429);
-    }
-
-    if (!otp.verifyCode(code, row.code_hash)) {
-      await db.prepare('UPDATE login_otps SET attempts = attempts + 1 WHERE id = ?').run(row.id);
-      return res.json({ error: 'Incorrect code' }, 401);
-    }
-
-    await db.prepare('UPDATE login_otps SET consumed = 1 WHERE id = ?').run(row.id);
-
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(user_id);
     const token = signToken(user);
     res.json({ token, user: await publicUser(user) });
-  });
-
-  // POST /api/auth/resend-otp
-  router.post('/api/auth/resend-otp', async (req, res) => {
-    const { user_id } = req.body;
-    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(user_id);
-    if (!user) return res.json({ error: 'Invalid request' }, 400);
-
-    const code = otp.generateCode();
-    const expiresAt = new Date(Date.now() + OTP_TTL_MS).toISOString();
-    await db.prepare(
-      'INSERT INTO login_otps (user_id, code_hash, expires_at) VALUES (?, ?, ?)'
-    ).run(user.id, otp.hashCode(code), expiresAt);
-    await sendOtpEmail(user.email, code);
-
-    res.json({ ok: true });
   });
 
   // GET /api/auth/me
